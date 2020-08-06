@@ -1,53 +1,108 @@
-//#link github di backup link lain
-
 #include <iostream>
-#include <windows.h>
+#include <vector>
 #include <GL/freeglut.h>
-#include "imageloader.h";
-#include "textureloader.h";
-#define WIREFRAME 0
+#include "imageloader.h"
+#include "textureloader.h"
 
-using namespace std;
+bool mouseDown = false;
+bool movement = false;
+float xrot = 0.0f, yrot = 0.0f;
+float xmov = 0.0f, ymov = 0.0f, zmov = 0.0f;
+float sizes = 1.0f;
 
 void display();
-bool mouseDown = false;
-float xrot = 0.0f;
-float yrot = 0.0f;
-float xdiff = 0.0f;
-float ydiff = 0.0f;
-double rotate_y = 0, rotate_x = 0, zoom = 0.5;
-int is_depth;
-float angle = 0.1f;
 
-void imageloader() {
-	//Tga info = Tga("C:/Users/Alfriyanis/source/repos/BackupTRDosen/BackupTRDosen/Woman1.tga");
-	Tga info = Tga("Woman1.tga");
+void LoadTexture() {
+	Model file = Model("C:/Users/Alfriyanis/Desktop/Github/GRAFKOM_TR_H_672016125/GRAFKOM_TR_H_672016125/Woman1.tga");
 
 	glEnable(GL_TEXTURE_2D);
 
 	GLuint texture = 0;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, info.HasAlphaChannel() ? GL_RGBA : GL_RGB, info.GetWidth(), info.GetWidth(), 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, info.GetPixels().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, file.HasAlphaChannel() ? GL_RGBA : GL_RGB, file.GetWidth(), file.GetWidth(), 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, file.GetPixels().data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
+void keyboard(unsigned char key, int x, int y) {
+	switch (key) {
+	case 'q':
+	case 'Q':
+		sizes += 0.2f;
+		break;
+	case 'e':
+	case 'E':
+		sizes -= 0.2f;
+		break;
+	case 'a':
+	case 'A':
+		yrot -= 5.0f;
+		break;
+	case 'd':
+	case 'D':
+		yrot += 5.0f;
+		break;
+	case 's':
+	case 'S':
+		xrot += 5.0f;
+		break;
+	case 'w':
+	case 'W':
+		xrot -= 5.0f;
+		break;
+	case 'r':
+	case 'R':
+		if (movement) {
+			movement = false;
+			printf("Stop Run\n");
+		}
+		else {
+			printf("Run\n");
+			movement = true;
+		}
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
+void keyboardSpecial(int key, int x, int y) {
+
+	switch (key) {
+	case 100:
+		xmov -= 0.025f;
+		break;
+	case 101:
+		ymov += 0.025f;
+		break;
+	case 102:
+		xmov += 0.025f;
+		break;
+	case 103:
+		ymov -= 0.025f;
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
+/*
 void mouse(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		std::cout << "KLIK KIRI" << " = anda menekan LEFT_BUTTON" << std::endl;
 		mouseDown = true;
-		xdiff = x - yrot;
-		ydiff = -y + xrot;
+		xmov = x - yrot;
+		ymov = -y + xrot;
 	}
 	else
 		mouseDown = false;
-	display();
+	glutPostRedisplay();
 }
 
 void mouseMotion(int x, int y) {
 	if (mouseDown) {
-		yrot = x - xdiff;
-		xrot = y + ydiff;
+		yrot = x - xmov;
+		xrot = y + ymov;
 
 		glLoadIdentity();
 		gluLookAt(0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f); //mengatur penglihatan objek
@@ -55,162 +110,114 @@ void mouseMotion(int x, int y) {
 		glRotatef(yrot, 0.0, 1.0, 0.0);
 		glutPostRedisplay();
 	}
-}
+}*/
 
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
-	case 'w':                                   ////zoom in
-	case 'W':
-		glScalef(0.75, 0.75, 0.75);
-		break;
-	case 'd':                                   ////geser kanan
-	case 'D':
-		glTranslatef(0.05, 0.0, 0.0);
-		break;
-	case 's':                                   ///zoom out
-	case 'S':
-		glScalef(1.75, 1.75, 1.75);
-		break;
-	case 'a':                                   ////geser kiri
-	case 'A':
-		glTranslatef(-0.05, 0.0, 0.0);
-		break;
-	case'q':                                    ////gser atas
-	case'Q':
-		glTranslatef(0.0, -0.05, 0.0);
-		break;
-	case 'e':
-	case 'E':
-		glTranslatef(0.0, 0.05, 0.0);
-		break;
-	case 'x':                                   ///putar kanan ke kiri
-	case 'X':
-		glRotatef(2.0, 0.0, 0.0, 1.0);
-		break;
-	case 'z':                                   ///putar kiri ke kanan 
-	case 'Z':
-		glRotatef(-2.0, 0.0, 0.0, 1.0);
-		break;
-	}
-	display();
-}
+void timer(int) {
+	glutTimerFunc(1000 / 30, timer, 0);
 
-void specialKeyboard(int key, int x, int y)
-{
-	switch (key) {
-	case 100:
-		glRotatef(-2.0, 0.0, 1.0, 0.0);
-		break;
-	case 101:
-		glRotatef(-2.0, 1.0, 0.0, 0.0);
-		break;
-	case 102:
-		glRotatef(2.0, 0.0, 1.0, 0.0);
-		break;
-	case 103:
-		glRotatef(2.0, 1.0, 0.0, 0.0);
-		break;
-	}
+	if (movement)
+		yrot += 5.0f;
+	else
+		yrot = yrot;
 	glutPostRedisplay();
 }
 
-void display(void) {
+void transform() {
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glTranslatef(xmov, ymov, zmov);
+	glScalef(sizes, sizes, sizes); 
+}
+
+void display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
+	glLoadIdentity();
 	glPushMatrix();
-	glTranslatef(0.0f, -.8f, 0.0f);
-	glColor3ub(10, 10, 10);
-	glRotatef(angle, 0.0f, 1.0f, 0.0f);
-	imageloader();
-	for (int i = 0; i < (int)jumTampilan / 3; i++)
-	{
-		glBegin(GL_LINE_LOOP);
-		glTexCoord2f(_uv[_list[i].u1].u, _uv[_list[i].u1].v);
-		glVertex3f(_pos[_list[i].u1].x, _pos[_list[i].u1].y, _pos[_list[i].u1].z);
-		glTexCoord2f(_uv[_list[i].u2].u, _uv[_list[i].u2].v);
-		glVertex3f(_pos[_list[i].u2].x, _pos[_list[i].u2].y, _pos[_list[i].u2].z);
-		glTexCoord2f(_uv[_list[i].u3].u, _uv[_list[i].u3].v);
-		glVertex3f(_pos[_list[i].u3].x, _pos[_list[i].u3].y, _pos[_list[i].u3].z);
+	loaderNfg sketsa;
+	sketsa.readfile();
+
+	int Jumtampilan = sketsa.totalNFG / 3;
+
+	LoadTexture();
+
+	gluLookAt(0.0, 2.0, 8.0, 0.0, 1.5, 3.0, 0, 1, 0);
+
+	transform();
+
+	for (int i = 0; i < Jumtampilan; i++) {
+
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(sketsa.jumVertex[sketsa.jumTampilan[i].pos.x].uv.x, sketsa.jumVertex[sketsa.jumTampilan[i].pos.x].uv.y);
+		glVertex3f (sketsa.jumVertex[sketsa.jumTampilan[i].pos.x].pos.x, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.x].pos.y, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.x].pos.z);
+		glTexCoord2f(sketsa.jumVertex[sketsa.jumTampilan[i].pos.y].uv.x, sketsa.jumVertex[sketsa.jumTampilan[i].pos.y].uv.y);
+		glVertex3f (sketsa.jumVertex[sketsa.jumTampilan[i].pos.y].pos.x, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.y].pos.y, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.y].pos.z);
+		glTexCoord2f(sketsa.jumVertex[sketsa.jumTampilan[i].pos.z].uv.x, sketsa.jumVertex[sketsa.jumTampilan[i].pos.z].uv.y);
+		glVertex3f (sketsa.jumVertex[sketsa.jumTampilan[i].pos.z].pos.x, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.z].pos.y, 
+					sketsa.jumVertex[sketsa.jumTampilan[i].pos.z].pos.z);
 		glEnd();
+
+
+
 	}
+
 	glPopMatrix();
+	glFlush();
 	glutSwapBuffers();
 }
 
-void timer(int) {
-	glutPostRedisplay();
-	glutTimerFunc(1000 / 30, timer, 0);
-	angle += 1.0f;
-}
-
-void init(void) {
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-}
-
-void Init() {
-	glClearColor(0, 0, 0, 0);
-	glLoadIdentity();
-	gluLookAt(0.2, 0.4, 5.0,
-		3, 3, 3,
-		4.5, 4.5, 100);
-	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
-	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
-	glMatrixMode(GL_PROJECTION);
-	glEnable(GL_DEPTH_TEST);
-	is_depth = 1;
-	glMatrixMode(GL_MODELVIEW);
-}
-
-
-void ukuran(int lebar, int tinggi) {
-	if (tinggi == 0)
-		tinggi = 1;
-
+void ukuran(int w, int h)
+{
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(20, (float)lebar / tinggi, .1f, 100);
-	glTranslated(0.0, -0.0, -7.2);
-	glMatrixMode(GL_MODELVIEW);
-}
 
-void idle() {
-	if (!mouseDown) {
-		xrot += 0.3f;
-		yrot += 0.4f;
+	if (w > h) {
+		glViewport(0, 0, w, w);
+		glTranslatef(0.0, -0.5, 0.0);
+		glRotatef(180.0, 0.0, 1.0, 0.0);
+		glScalef(-0.5, 0.5, -0.5);
 	}
-	glutPostRedisplay();
+	else {
+		glViewport(0, 0, w, h);
+	}
+
+	gluPerspective(20.0, w / h, 0.1f, 100.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+void myinit() {
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glClearDepth(1.0f);
 }
 
 int main(int argc, char** argv) {
+
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_MULTISAMPLE);
-	glutInitWindowSize(600, 600);
-	glutInitWindowPosition(200, 20);
-	glPointSize(10);
-	glLineWidth(10);
-	glutCreateWindow("Grafkom TR Dosen");
-	Load("Woman1.nfg");
-	init();
-	is_depth = 1;
-	glLoadIdentity();
 
-
-	glutDisplayFunc(display);
-	glutMouseFunc(mouse);
-	glutMotionFunc(mouseMotion);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(500, 500);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("GRAFKOM_TR_H");
 	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(specialKeyboard);
-	glutReshapeFunc(ukuran);
+	glutSpecialFunc(keyboardSpecial);
+	//glutMouseFunc(mouse);
+	//glutMotionFunc(mouseMotion);
 	glutTimerFunc(0, timer, 0);
+	glutReshapeFunc(ukuran);
+	glutDisplayFunc(display);
 
-	glutIdleFunc(display);
+	myinit();
 	glutMainLoop();
+
 	return 0;
 }

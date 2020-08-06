@@ -78,6 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\Alfriyanis\Desktop\Github\GRAFKOM_TR_H_672016125\GRAFKOM_TR_H_672016125\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alfriyanis\Desktop\Github\GRAFKOM_TR_H_672016125\library;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -143,6 +145,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imageloader.h" />
+    <ClInclude Include="textureloader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Woman1.nfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Woman1.tga" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
